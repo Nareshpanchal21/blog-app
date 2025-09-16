@@ -29,10 +29,17 @@ app.get("/api/blogs", async (req, res) => {
 
 // ✅ Create new blog
 app.post("/api/blogs", async (req, res) => {
-  const blog = new Blog(req.body);
+  const { title, content, owner } = req.body;
+  const blog = new Blog({
+    title,
+    content,
+    owner,
+    author: owner, // ✅ set author same as owner
+  });
   await blog.save();
   res.json(blog);
 });
+
 
 // ✅ Delete blog by ID
 app.delete("/api/blogs/:id", async (req, res) => {

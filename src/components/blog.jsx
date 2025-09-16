@@ -16,7 +16,7 @@ export default function Blog({ blogs, user, deleteBlog }) {
         >
           <h2 className="text-orange-500 font-bold text-lg">{blog.title}</h2>
           <p className="text-gray-500 text-sm">
-            By {blog.author} | {blog.date} | {blog.category}
+             By {blog.author || blog.owner || "Unknown"} | {blog.date} | {blog.category}
           </p>
           <p className="text-gray-700 mt-2 line-clamp-3">{blog.description}</p>
           <p className="text-orange-500 mt-1 text-sm font-semibold">
@@ -53,7 +53,7 @@ export default function Blog({ blogs, user, deleteBlog }) {
               {selectedBlog.title}
             </h2>
             <p className="text-gray-500 text-sm mb-4">
-              By {selectedBlog.author} | {selectedBlog.date} | {selectedBlog.category}
+              By {selectedBlog.author || selectedBlog.owner || "Unknown"} | {selectedBlog.date} | {selectedBlog.category}
             </p>
             <p className="text-gray-700 whitespace-pre-line">
               {selectedBlog.content}
