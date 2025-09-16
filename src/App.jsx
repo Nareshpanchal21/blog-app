@@ -5,8 +5,9 @@ import Navbar from "./components/Navbar";
 import Login from "./components/Login";
 import HowItWorks from "./components/HowItWorks";
 import Footer from "./components/Footer";
-import { getUserBlogs, createBlog } from "./services/api";
 
+// ✅ Use deployed backend URL
+const API_URL = "https://blog-app-mz67.onrender.com/api";
 
 export default function App() {
   const [blogs, setBlogs] = useState([]);
@@ -17,7 +18,7 @@ export default function App() {
 
   // ✅ Fetch blogs from backend
   const fetchBlogs = () => {
-    fetch("http://localhost:5000/api/blogs")
+    fetch(`${API_URL}/blogs`)
       .then((res) => res.json())
       .then((data) => setBlogs(data))
       .catch((err) => console.error(err));
@@ -30,7 +31,7 @@ export default function App() {
   // ✅ Add blog
   const addBlog = (newBlog) => {
     if (!user) return alert("Please login first!");
-    fetch("http://localhost:5000/api/blogs", {
+    fetch(`${API_URL}/blogs`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...newBlog, owner: user }),
@@ -49,7 +50,7 @@ export default function App() {
       return alert("You can only delete your own blogs!");
     }
 
-    fetch(`http://localhost:5000/api/blogs/${id}`, {
+    fetch(`${API_URL}/blogs/${id}`, {
       method: "DELETE",
     })
       .then(() => fetchBlogs())
@@ -60,9 +61,7 @@ export default function App() {
   const filteredBlogs = blogs
     .filter((blog) => (user ? blog.owner?.trim() === user?.trim() : true))
     .filter((blog) => {
-      // Agar user login hai → search ki zarurat nahi
       if (user) return true;
-      // Agar login nahi hai → search karna compulsory
       return searchQuery
         ? blog.title.toLowerCase().includes(searchQuery.toLowerCase())
         : false;
@@ -80,7 +79,7 @@ export default function App() {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem("user");
-    setSearchQuery(""); // logout par search clear
+    setSearchQuery("");
   };
 
   return (
@@ -136,7 +135,7 @@ export default function App() {
         </div>
       )}
 
-      {/* ✅ HowItWorks → sirf tab show ho jab user login na ho & search empty ho */}
+      {/* HowItWorks → sirf tab show ho jab user login na ho & search empty ho */}
       {!showCreate && !user && !searchQuery && <HowItWorks />}
 
       <Footer />
