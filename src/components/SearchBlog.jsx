@@ -5,7 +5,7 @@ export default function SearchBlog() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const API_KEY = "AIzaSyCOHWANaw2ZN9ucD09bZsgiLm-ygv6EZdU"; // aapki API key
+  const API_KEY = "https://blog-app-mz67.onrender.com/api"; // aapki API key
   const BLOG_ID = "3213900"; // aapka blog ID
 
   const handleSearch = async () => {
