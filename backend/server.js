@@ -11,12 +11,15 @@ app.use(express.json());
 // ✅ CORS Configuration (Render + localhost)
 // =====================
 const corsOptions = {
-  origin: ["http://localhost:5173", "https://your-frontend-url.onrender.com"], 
+  origin: ["http://localhost:5173", "https://blog-app-mz67.onrender.com"], 
   methods: ["GET", "POST", "DELETE", "PUT", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
 app.use(cors(corsOptions));
+
+// ✅ Handle preflight OPTIONS request
+app.options("*", cors(corsOptions));
 
 // =====================
 // ✅ MongoDB connection
@@ -30,7 +33,7 @@ mongoose.connect(process.env.MONGO_URI)
 // =====================
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }, 
+  password: { type: String, required: true }, // plain text for now
 }, { timestamps: true });
 
 const User = mongoose.model("User", userSchema);
