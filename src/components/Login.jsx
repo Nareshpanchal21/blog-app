@@ -1,26 +1,51 @@
 // File: components/Login.jsx
 import React, { useState } from "react";
 
+// ✅ Render backend URL
+const BASE_URL = "https://your-backend-url.onrender.com"; // replace with your Render backend URL
+
 export default function Login({ onLogin, onClose }) {
+  const [activeTab, setActiveTab] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      alert("Please enter email and password");
+      alert("Please fill all fields");
       return;
     }
-    // Simple login validation (demo)
-    onLogin(email);
-    setEmail("");
-    setPassword("");
+
+    const url = activeTab === "signup" ? "/api/signup" : "/api/login";
+
+    try {
+      const res = await fetch(`${BASE_URL}${url}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.message);
+        return;
+      }
+
+      alert(data.message);
+      onLogin(email);
+      onClose();
+
+      setEmail("");
+      setPassword("");
+    } catch (err) {
+      console.error(err);
+      alert("Server error or CORS issue");
+    }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg w-96 p-6 relative shadow-lg">
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl font-bold"
@@ -28,9 +53,28 @@ export default function Login({ onLogin, onClose }) {
           ×
         </button>
 
-        <h2 className="text-2xl font-bold text-orange-500 mb-4 text-center">
-          Login
-        </h2>
+        <div className="flex mb-6 border-b">
+          <button
+            onClick={() => setActiveTab("login")}
+            className={`flex-1 py-2 font-semibold ${
+              activeTab === "login"
+                ? "text-orange-500 border-b-2 border-orange-500"
+                : "text-gray-500"
+            }`}
+          >
+            Login
+          </button>
+          <button
+            onClick={() => setActiveTab("signup")}
+            className={`flex-1 py-2 font-semibold ${
+              activeTab === "signup"
+                ? "text-orange-500 border-b-2 border-orange-500"
+                : "text-gray-500"
+            }`}
+          >
+            New User
+          </button>
+        </div>
 
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <input
@@ -51,7 +95,7 @@ export default function Login({ onLogin, onClose }) {
             type="submit"
             className="bg-orange-500 text-white font-semibold px-4 py-2 rounded hover:bg-orange-600 transition"
           >
-            Login
+            {activeTab === "signup" ? "Sign Up" : "Login"}
           </button>
         </form>
       </div>

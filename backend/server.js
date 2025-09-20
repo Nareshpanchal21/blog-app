@@ -8,13 +8,13 @@ const app = express();
 app.use(express.json());
 
 // =====================
-// ✅ CORS Configuration
+// ✅ CORS Configuration (Render + localhost)
 // =====================
-// Allow your frontend URL (localhost for dev, Render URL for prod)
 const corsOptions = {
-  origin: ["http://localhost:5173"], // add your frontend URLs here
-  methods: ["GET", "POST", "DELETE", "PUT"],
-  credentials: true, // if using cookies/session
+  origin: ["http://localhost:5173", "https://your-frontend-url.onrender.com"], 
+  methods: ["GET", "POST", "DELETE", "PUT", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
@@ -30,7 +30,7 @@ mongoose.connect(process.env.MONGO_URI)
 // =====================
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }, // plain text for now
+  password: { type: String, required: true }, 
 }, { timestamps: true });
 
 const User = mongoose.model("User", userSchema);
@@ -96,11 +96,7 @@ app.get("/api/blogs", async (req, res) => {
 // Create new blog
 app.post("/api/blogs", async (req, res) => {
   const { title, content, owner } = req.body;
-  const blog = new Blog({
-    title,
-    content,
-    owner,
-  });
+  const blog = new Blog({ title, content, owner });
   await blog.save();
   res.json(blog);
 });
