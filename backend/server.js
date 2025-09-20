@@ -5,21 +5,11 @@ import mongoose from "mongoose";
 import 'dotenv/config';
 
 const app = express();
+
+// ✅ Simple CORS (all origins allowed, like your old working version)
+app.use(cors());
+
 app.use(express.json());
-
-// =====================
-// ✅ CORS Configuration (Render + localhost)
-// =====================
-const corsOptions = {
-  origin: ["http://localhost:5173", "https://blog-app-mz67.onrender.com"], 
-  methods: ["GET", "POST", "DELETE", "PUT", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-};
-app.use(cors(corsOptions));
-
-// ✅ Handle preflight OPTIONS request
-app.options("*", cors(corsOptions));
 
 // =====================
 // ✅ MongoDB connection
