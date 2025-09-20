@@ -5,10 +5,22 @@ import mongoose from "mongoose";
 import 'dotenv/config';
 
 const app = express();
-app.use(cors());
 app.use(express.json());
 
+// =====================
+// ✅ CORS Configuration
+// =====================
+// Allow your frontend URL (localhost for dev, Render URL for prod)
+const corsOptions = {
+  origin: ["http://localhost:5173"], // add your frontend URLs here
+  methods: ["GET", "POST", "DELETE", "PUT"],
+  credentials: true, // if using cookies/session
+};
+app.use(cors(corsOptions));
+
+// =====================
 // ✅ MongoDB connection
+// =====================
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch(err => console.error("❌ MongoDB connection error:", err));
@@ -18,7 +30,7 @@ mongoose.connect(process.env.MONGO_URI)
 // =====================
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }, // later hash kar sakte ho
+  password: { type: String, required: true }, // plain text for now
 }, { timestamps: true });
 
 const User = mongoose.model("User", userSchema);
