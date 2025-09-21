@@ -2,40 +2,58 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
-import 'dotenv/config';
+import "dotenv/config";
 
 const app = express();
 
-// ✅ Simple CORS (all origins allowed, like your old working version)
-app.use(cors());
+// =====================
+// ✅ CORS Setup
+// =====================
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",               // Local dev frontend
+      "https://your-frontend-url.onrender.com", // Deployed frontend (replace with real)
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
 // =====================
 // ✅ MongoDB connection
 // =====================
-mongoose.connect(process.env.MONGO_URI)
+mongoose
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB connected"))
-  .catch(err => console.error("❌ MongoDB connection error:", err));
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 // =====================
 // ✅ User Schema & Model
 // =====================
-const userSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }, // plain text for now
-}, { timestamps: true });
+const userSchema = new mongoose.Schema(
+  {
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true }, // plain text for now (hash later)
+  },
+  { timestamps: true }
+);
 
 const User = mongoose.model("User", userSchema);
 
 // =====================
 // ✅ Blog Schema & Model
 // =====================
-const blogSchema = new mongoose.Schema({
-  title: String,
-  content: String,
-  owner: String,
-}, { timestamps: true });
+const blogSchema = new mongoose.Schema(
+  {
+    title: String,
+    content: String,
+    owner: String,
+  },
+  { timestamps: true }
+);
 
 const Blog = mongoose.model("Blog", blogSchema);
 
@@ -82,26 +100,38 @@ app.post("/api/login", async (req, res) => {
 
 // Get all blogs
 app.get("/api/blogs", async (req, res) => {
-  const blogs = await Blog.find().sort({ createdAt: -1 });
-  res.json(blogs);
+  try {
+    const blogs = await Blog.find().sort({ createdAt: -1 });
+    res.json(blogs);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching blogs", error: err });
+  }
 });
 
 // Create new blog
 app.post("/api/blogs", async (req, res) => {
-  const { title, content, owner } = req.body;
-  const blog = new Blog({ title, content, owner });
-  await blog.save();
-  res.json(blog);
+  try {
+    const { title, content, owner } = req.body;
+    const blog = new Blog({ title, content, owner });
+    await blog.save();
+    res.json(blog);
+  } catch (err) {
+    res.status(500).json({ message: "Error creating blog", error: err });
+  }
 });
 
 // Delete blog by ID
 app.delete("/api/blogs/:id", async (req, res) => {
-  await Blog.findByIdAndDelete(req.params.id);
-  res.json({ success: true });
+  try {
+    await Blog.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ message: "Error deleting blog", error: err });
+  }
 });
 
 // =====================
 // ✅ Start server
 // =====================
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Backend running on port ${PORT}`));

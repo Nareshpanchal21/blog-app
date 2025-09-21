@@ -1,8 +1,8 @@
 // File: components/Login.jsx
 import React, { useState } from "react";
 
-// ✅ Render backend URL
-const BASE_URL = "https://your-backend-url.onrender.com"; // replace with your Render backend URL
+// ✅ Actual Render backend URL
+const BASE_URL = "https://blog-app-mz67.onrender.com"; 
 
 export default function Login({ onLogin, onClose }) {
   const [activeTab, setActiveTab] = useState("login");
@@ -24,6 +24,7 @@ export default function Login({ onLogin, onClose }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+
       const data = await res.json();
 
       if (!res.ok) {
