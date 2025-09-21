@@ -13,7 +13,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",               // Local dev frontend
-      "https://your-frontend-url.onrender.com", // Deployed frontend (replace with real)
+      "https://blog-app-mz67.onrender.com", // Deployed frontend (replace with real)
     ],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
