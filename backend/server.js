@@ -7,15 +7,17 @@ import "dotenv/config";
 const app = express();
 
 // =====================
-// ✅ CORS Setup
+// ✅ CORS Setup (Allow Local + Both Frontends)
 // =====================
 app.use(
   cors({
     origin: [
       "http://localhost:5173",               // Local dev frontend
-      "https://blog-app-mz67.onrender.com", // Deployed frontend (replace with real)
+      "https://blog-app-mz67.onrender.com",  // Backend deployed frontend
+      "https://blog-app-1-bg4f.onrender.com" // Actual deployed frontend
     ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
   })
 );
@@ -23,7 +25,7 @@ app.use(
 app.use(express.json());
 
 // =====================
-// ✅ MongoDB connection
+// ✅ MongoDB Connection
 // =====================
 mongoose
   .connect(process.env.MONGO_URI)
@@ -36,11 +38,10 @@ mongoose
 const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true }, // plain text for now (hash later)
+    password: { type: String, required: true }, // plain text (hash later)
   },
   { timestamps: true }
 );
-
 const User = mongoose.model("User", userSchema);
 
 // =====================
@@ -54,21 +55,19 @@ const blogSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
 const Blog = mongoose.model("Blog", blogSchema);
 
 // =====================
 // ✅ User Routes
 // =====================
 
-// Signup (New User)
+// Signup
 app.post("/api/signup", async (req, res) => {
   const { email, password } = req.body;
   try {
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
-    }
+    if (existingUser) return res.status(400).json({ message: "User already exists" });
+
     const newUser = new User({ email, password });
     await newUser.save();
     res.json({ message: "User created successfully", user: newUser });
@@ -77,17 +76,14 @@ app.post("/api/signup", async (req, res) => {
   }
 });
 
-// Login (Existing User)
+// Login
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "User not found" });
-    }
-    if (user.password !== password) {
-      return res.status(400).json({ message: "Incorrect password" });
-    }
+    if (!user) return res.status(400).json({ message: "User not found" });
+    if (user.password !== password) return res.status(400).json({ message: "Incorrect password" });
+
     res.json({ message: "Login successful", user });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err });
@@ -108,7 +104,7 @@ app.get("/api/blogs", async (req, res) => {
   }
 });
 
-// Create new blog
+// Create blog
 app.post("/api/blogs", async (req, res) => {
   try {
     const { title, content, owner } = req.body;
@@ -120,7 +116,7 @@ app.post("/api/blogs", async (req, res) => {
   }
 });
 
-// Delete blog by ID
+// Delete blog
 app.delete("/api/blogs/:id", async (req, res) => {
   try {
     await Blog.findByIdAndDelete(req.params.id);
@@ -131,7 +127,7 @@ app.delete("/api/blogs/:id", async (req, res) => {
 });
 
 // =====================
-// ✅ Start server
+// ✅ Start Server
 // =====================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Backend running on port ${PORT}`));
